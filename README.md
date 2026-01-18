@@ -1,6 +1,6 @@
 # Binary Static Analysis Tool
 
-A lightweight, modular Python-based tool designed for security researchers and malware analysts to perform initial static triage on executable files (PE and ELF).
+The tool is organized into a modular architecture to separate core analysis logic from specific packer detection signatures:
 
 ## Overview
 
@@ -8,22 +8,52 @@ This tool automates the process of gathering technical metadata from a binary fi
 
 ## Key Features
 
-* **File Identification:** Detects binary type (Windows EXE/DLL, Linux ELF) and architecture.
-* **Security Mitigations Check:** Analyzes the binary for security flags such as:
-    * **ASLR** (Address Space Layout Randomization)
-    * **DEP/NX** (Data Execution Prevention)
-    * **Stack Canaries** (Buffer overflow protection)
-* **Entropy Calculation:** Computes the Shannon Entropy value to identify encrypted or compressed data sections (common in malware).
-* **Packer Detection:** Uses heuristics and entropy data to detect known packers like UPX or custom obfuscators.
+* **Static Triage:** Analyze binaries without execution to ensure safety..
+* **Security Auditing:** Identify if a file lacks modern protections like Stack Canaries, NX bits, or ASLR.:
+* **Obfuscation Detection:** Use high entropy values and signature matching to find hidden payloads..
+* **Multi-Packer Support:** Built-in detection for industry-standard packers like Themida, UPX, and ASPack..
+
+
+## USAGE
+```text
+# General usage
+python3 binary_analyzer.py <path_to_binary>
+
+# Example: Analyzing a Windows executable
+python3 binary_analyzer.py samples/test_file.exe
+
+# Example: Analyzing a Linux ELF file
+python3 binary_analyzer.py samples/my_app.out
+```
 
 ## 📁 Project Structure
 
 The tool relies on a modular architecture located in the `core/` directory:
 
 ```text
-├── main.py                # Main entry point and orchestration logic
-└── core/                  # Analysis engine modules
-    ├── binary_info.py     # Module for file headers and metadata
-    ├── security_checks.py # Module for security flag verification
-    ├── entropy.py         # Module for statistical data analysis
-    └── packer_detector.py # Module for packer signature matching
+├── binary_analyzer.py       # Main entry point and orchestrator
+├── core/                    # Fundamental analysis modules
+│   ├── binary_info.py       # Extracts file metadata and architecture
+│   ├── entropy.py           # Calculates Shannon Entropy for data density
+│   ├── packer_detector.py   # Main logic for identifying packed files
+│   └── security_checks.py   # Audits mitigation flags (ASLR, DEP, etc.)
+└── packer/                  # Specialized detection signatures
+    ├── aspack.py            # ASPack protection signatures
+    ├── pecompact.py         # PECompact signatures
+    ├── themida.py           # Themida/WinLicense signatures
+    └── upx.py               # UPX compression signatures
+
+```
+
+## ⚙️ Analysis Flow
+
+```text
+Binary File
+   ↓
+Basic Information
+   ↓
+Security Checks
+   ↓
+Entropy Analysis
+   ↓
+Packer Detection
